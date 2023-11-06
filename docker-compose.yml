@@ -1,0 +1,39 @@
+services:
+ mysqldb:
+    container_name: mysqlcontainerforapp
+    image: mysql:8.0
+    restart: unless-stopped
+    command: --default-authentication-plugin=mysql_native_password
+    volumes:
+      - $HOME/database:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: employee
+      MYSQL_USER: meir
+      MYSQL_PASSWORD: Meirdev123!
+      MYSQL_ROOT_PASSWORD: Meirdev123!
+      SERVICE_TAGS: prod
+      SERVICE_NAME: mysqldb
+    networks:
+      - apinetwork
+
+ apiapplication:
+    container_name: apiapplicationcontainer
+    build: .
+    image: apiapplication:v1
+    restart: unless-stopped
+    ports:
+      - 8100:8080
+    environment:
+      SPRiNG_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/employee
+      SPRiNG_DATASOURCE_USERNAME: 'meir'
+      SPRiNG_DATASOURCE_PASSWORD: 'Meirdev123!'
+      SERVICE_TAGS: prod
+      SERVICE_NAME: springapi
+    depends_on: 
+        - mysqldb
+    networks:
+      - apinetwork
+
+networks:
+  apinetwork:
+    driver: bridge
